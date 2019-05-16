@@ -1,0 +1,12 @@
+name: MigrationFlows
+title: MigrationFlows
+username:
+account: shlokg
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 933874
+bundleId: 2090167
+url: https://shlokg.shinyapps.io/MigrationFlows/
+when: 1558036435.32117
+asMultiple: FALSE
+asStatic: FALSE
