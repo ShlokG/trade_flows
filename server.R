@@ -515,7 +515,7 @@ shinyServer(function(input, output, session) {
     str1 <- "Checking \"Exclude County of Interest\" or the corresponding mark for 
     State and Region will gray out the selected area for which 
     inflows, outflows, or net inflows are desired.<br/>"
-    str2 <- "Note that the values for Net Inflow are 10^(the log base-10 of the (inflows/outflows))
+    str2 <- "Note that the values for Net Inflow are log base-10 of (inflows/outflows))
     while for Outflow and Inflow, it's the total number of migrations<br/>"
     str3 <- "Lastly, dark grey means that there were no flows in the specified year but there were
     flows in other years. Light grey means there were no flows between 1990 and 2010 between
