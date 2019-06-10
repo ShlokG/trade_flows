@@ -6,6 +6,8 @@ library(ggplot2)
 library(dplyr)
 library(stringr)
 
+memory.limit(30000)
+
 df = read.csv("demographic-research.40-40/county_migration_data.csv")
 crosswalk = read.csv("demographic-research.40-40/ssa_fips_state_county2017.csv")
 crosswalk$county = tolower(crosswalk$county)
@@ -89,6 +91,10 @@ ditch_the_axes <- theme(
   axis.title = element_blank()
 )
 
+df_dest2 = df_dest2[!duplicated(df_dest2[c("region","state_int","subregion","cty_int","long","lat","group","order")]),]
+df_origs2 = df_origs2[!duplicated(df_origs2[c("region","state_int","subregion","cty_int","long","lat","group","order")]),]
+df_outs2 = df_outs2[!duplicated(df_outs2[c("region","state_int","subregion","cty_int","long","lat","group","order")]),]
+
 ##########
 # States #
 ##########
@@ -139,6 +145,10 @@ df_outs_st2$state_int = df_outs_st2$orig_state
 
 rm(df_origs_state)
 rm(df_outs_st)
+
+df_dest_os = df_dest_os[!duplicated(df_dest_os[c("region","state_int","long","lat","group","order")]),]
+df_origs_os = df_origs_os[!duplicated(df_origs_os[c("region","state_int","long","lat","group","order")]),]
+df_outs_st2 = df_outs_st2[!duplicated(df_outs_st2[c("region","state_int","long","lat","group","order")]),]
 
 ##########
 # Region #
@@ -236,19 +246,6 @@ df_outr_st2$subregion = NULL
 df_dest_or = df_dest_or[!duplicated(df_dest_or[c("region","state_int","state_not","long","lat","group","order")]),]
 df_origs_or = df_origs_or[!duplicated(df_origs_or[c("region","state_int","state_not","long","lat","group","order")]),]
 df_outr_st2 = df_outr_st2[!duplicated(df_outr_st2[c("region","state_int","state_not","long","lat","group","order")]),]
-
-
-
-#ggplot(data = states, mapping = aes(x = long, y = lat, group = group)) + 
-#  coord_fixed(1.3) + 
-#  geom_polygon(color = "black", fill = "gray") +
-#  geom_polygon(data = subset(df_dest_or, state_int=="East South Central"), 
-#               aes(fill = subset(df_dest_or, state_int=="East South Central")[,which(colnames(df_dest_or) == paste0("X", as.character(2010)))])) +
-#  geom_polygon(color = "black", fill = NA) +
-#  theme_bw() + 
-#  ditch_the_axes + 
-#  scale_fill_gradientn(colours = rev(rainbow(7)), trans="log10") + 
-#  labs(fill="Number of Migrants")
 
 
 # Define server logic required to plot various variables against mpg
