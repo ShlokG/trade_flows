@@ -5,6 +5,45 @@ library(ggmap)
 library(ggplot2)
 library(dplyr)
 library(stringr)
+library(maps)
+library(sp)
+library(maptools)
+
+# Source for latlong2county: https://stackoverflow.com/questions/13316185/r-convert-zipcode-or-lat-long-to-county
+
+# The single argument to this function, pointsDF, is a data.frame in which:
+#   - column 1 contains the longitude in degrees (negative in the US)
+#   - column 2 contains the latitude in degrees
+
+latlong2county <- function(pointsDF) {
+  # Prepare SpatialPolygons object with one SpatialPolygon
+  # per county
+  counties <- map('county', fill=TRUE, col="transparent", plot=FALSE)
+  IDs <- sapply(strsplit(counties$names, ":"), function(x) x[1])
+  counties_sp <- map2SpatialPolygons(counties, IDs=IDs,
+                                     proj4string=CRS("+proj=longlat +datum=WGS84"))
+  
+  # Convert pointsDF to a SpatialPoints object 
+  pointsSP <- SpatialPoints(pointsDF, 
+                            proj4string=CRS("+proj=longlat +datum=WGS84"))
+  
+  # Use 'over' to get _indices_ of the Polygons object containing each point 
+  indices <- over(pointsSP, counties_sp)
+  
+  # Return the county names of the Polygons object containing each point
+  countyNames <- sapply(counties_sp@polygons, function(x) x@ID)
+  countyNames[indices]
+}
+
+# Test the function using points in Wisconsin and Oregon.
+#testPoints <- data.frame(x = c(-90, -120), y = c(44, 44))
+#locs = latlong2county(data.frame(e$x, e$y))
+#locs2 = data.frame(state = substr(locs,1,regexpr(",", locs)-1),
+#                   county = substr(locs,regexpr(",",locs)+1,nchar(locs)))
+#paste(locs2$county, locs2$state, sep = ", ")
+#paste0("\n", values$df_data[which(region == locs2$state & subregion == locs2$county)[1],
+#              which(colnames(values$df_data) == paste0("X", as.character(input$year)))],collapse="")
+
 
 memory.limit(30000)
 
@@ -440,6 +479,69 @@ shinyServer(function(input, output, session) {
         ditch_the_axes + 
         scale_fill_gradientn(colours = rev(rainbow(7)), trans="log10") + 
         labs(fill="Number of Migrants")
+    })
+    
+    # Hover
+    ## Counties
+    output$info <- renderText({
+      xy_str <- function(e){
+        locs = latlong2county(data.frame(e$x, e$y))
+        locs2 = data.frame(state = substr(locs,1,regexpr(",", locs)-1),
+                           county = substr(locs,regexpr(",",locs)+1,nchar(locs)))
+        strs = paste(locs2$county, locs2$state, sep = ", ")
+        vals = values$df_data[which(values$df_data$region == locs2$state & values$df_data$subregion == locs2$county)[1],
+                              which(colnames(values$df_data) == paste0("X", as.character(input$year)))]
+        
+        if(!is.na(vals)){
+          strs = (paste0(strs, "\n", as.character(vals),collapse=""))
+        }
+        return(strs)
+      }
+      if(!is.null(input$map_hov)){
+        print(xy_str(input$map_hov))
+      }
+    })
+    
+    # Hover
+    ## State
+    output$info2 <- renderText({
+      xy_str2 <- function(e){
+        locs = latlong2county(data.frame(e$x, e$y))
+        locs2 = data.frame(state2 = substr(locs,1,regexpr(",", locs)-1))
+        strs = locs2$state2
+        vals = values2$df_data[which(values2$df_data$region == locs2$state2)[1],
+                              which(colnames(values2$df_data) == paste0("X", as.character(input$year2)))]
+        
+        if(!is.na(vals)){
+          strs = (paste0(strs, "\n", as.character(vals),collapse=""))
+        }
+        return(strs)
+      }
+      if(!is.null(input$map2_hov)){
+        print(xy_str2(input$map2_hov))
+      }
+    })
+    
+    # Hover
+    ## Region
+    output$info3 <- renderText({
+      xy_str3 <- function(e){
+        locs = latlong2county(data.frame(e$x, e$y))
+        locs2 = data.frame(state = substr(locs,1,regexpr(",", locs)-1),
+                           county = substr(locs,regexpr(",",locs)+1,nchar(locs)))
+        hov_reg = as.character(values3$df_data[match(locs2$state,values3$df_data$region),32])
+        strs = hov_reg
+        vals = values3$df_data[which(values3$df_data$region == locs2$state)[1],
+                              which(colnames(values3$df_data) == paste0("X", as.character(input$year3)))]
+        
+        if(!is.na(vals)){
+          strs = (paste0(strs, "\n", as.character(vals),collapse=""))
+        }
+        return(strs)
+      }
+      if(!is.null(input$map3_hov)){
+        print(xy_str3(input$map3_hov))
+      }
     })
   
     # Reactive expression to compose a data frame containing all of the values

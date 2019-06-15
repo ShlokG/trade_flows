@@ -25,7 +25,9 @@ shinyUI(navbarPage("Migration Flows",
                               checkboxInput("exclude", "Exclude County of Interest", TRUE)
                             ),
                             mainPanel(h3(textOutput("caption")),
-                                      plotOutput("map"))
+                                      plotOutput("map",
+                                                 hover = "map_hov"),
+                                      verbatimTextOutput("info"))
                             ),
                    tabPanel("States",
                             sidebarPanel(
@@ -42,7 +44,9 @@ shinyUI(navbarPage("Migration Flows",
                               checkboxInput("exclude2", "Exclude State of Interest", TRUE)
                             ),
                             mainPanel(h3(textOutput("caption2")),
-                                      plotOutput("map2"))
+                                      plotOutput("map2",
+                                                 hover = "map2_hov"),
+                                      verbatimTextOutput("info2"))
                    ),
                    tabPanel("Regions",
                             sidebarPanel(
@@ -59,7 +63,9 @@ shinyUI(navbarPage("Migration Flows",
                               checkboxInput("exclude3", "Exclude Region of Interest", TRUE)
                             ),
                             mainPanel(h3(textOutput("caption3")),
-                                      plotOutput("map3"))
+                                      plotOutput("map3",
+                                                 hover = "map3_hov"),
+                                      verbatimTextOutput("info3"))
                    ),
                    tabPanel("Help",
                             mainPanel(h4(htmlOutput("caption4")))
